@@ -31,7 +31,7 @@ public class CustomPriorityQueue {
 
         pq.offer(i);
 
-        ++this.capacity;
+        ++this.itemCnt;
         return true;
     }
 
@@ -61,5 +61,13 @@ public class CustomPriorityQueue {
 
         --this.itemCnt; // total count of items is one less now
         return this.pq.poll();
+    }
+
+    public int getCap() {
+        return this.capacity;
+    }
+
+    public int getItemCnt() {
+        return this.itemCnt;
     }
 }
