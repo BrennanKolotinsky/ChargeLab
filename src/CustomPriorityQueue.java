@@ -5,14 +5,15 @@ public class CustomPriorityQueue {
     private int capacity;
     private int itemCnt; // this is the number of items we have stored currently
     private int prev; // this is the previous val
-    private boolean twoInARow; // this is a boolean to track whether the previous value was added to the queue twice in a row
-    private boolean removedOneNum; // track if we have removed our first number into our queue ever!
+    private boolean requiredPriority; // this is a boolean to track whether the next value removed needs to be the prev + 1
     private PriorityQueue<Item> pq; // this is a priority queue we will store the items in
+    private HashSet<Integer> st; // this contains numbers that have been added an odd amount of times!
 
     public CustomPriorityQueue(int cap) {
         this.capacity = cap;
         this.itemCnt = 0;
-        this.pq  = new PriorityQueue<>((a, b) -> b.getPriority() - a.getPriority()); // sort by priority using lambda expressions
+        this.pq  = new PriorityQueue<>((a, b) -> a.getPriority() - b.getPriority()); // sort by priority using lambda expressions -- lowest valued items first
+        st = new HashSet<>();
     }
 
     /*
@@ -42,22 +43,19 @@ public class CustomPriorityQueue {
         }
 
         // if we haven't removed two in a row before, we don't need to find a specific value to remove!
-        if (!this.twoInARow) {
-            // if a number has been removed before and it's the same number, let's set it up so now two of the same have been removed in a row
-            if (this.removedOneNum && this.prev == this.pq.peek().getPriority())
-                this.twoInARow = true;
-
-            this.prev = this.pq.peek().getPriority();
-        } else {
-            // wait until an element is added with the priority of one higher than the previous
+        if (this.requiredPriority)
             while (pq.peek().getPriority() != prev + 1) {
             }
 
-            twoInARow = false;
-            ++prev; // this number is one higher than the previous
+        // if a number has been removed before and it's the same number, let's set it up so now two of the same have been removed in a row
+        if (this.st.contains(this.pq.peek().getPriority())) {
+            this.prev = this.pq.peek().getPriority();
+            this.requiredPriority = true;
+        } else {
+            this.st.add(this.pq.peek().getPriority()); // this number has now been added an odd number of times
+            this.requiredPriority = false;
         }
 
-        this.removedOneNum = true; // at least one number has been removed now!
         --this.itemCnt; // total count of items is one less now
         return this.pq.poll();
     }
