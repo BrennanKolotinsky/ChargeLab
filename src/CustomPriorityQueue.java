@@ -10,6 +10,9 @@ public class CustomPriorityQueue {
     private HashSet<Integer> st; // this contains numbers that have been added an odd amount of times!
 
     public CustomPriorityQueue(int cap) {
+        if (cap <= 0)
+            System.out.println("Entered an invalid capacity!");
+
         this.capacity = cap;
         this.itemCnt = 0;
         this.pq  = new PriorityQueue<>((a, b) -> a.getPriority() - b.getPriority()); // sort by priority using lambda expressions -- lowest valued items first
