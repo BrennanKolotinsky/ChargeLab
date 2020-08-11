@@ -8,6 +8,7 @@ public class Test {
 //        runSecondTest();
 //        runThirdTest();
         runFourthTest();
+//        runFifthTest();
     }
 
     /*
@@ -97,6 +98,26 @@ public class Test {
         RemoveThread r = new RemoveThread(queue);
         r.increaseRemovals(2); // let's remove one item
         r.start();
+    }
+
+    /*
+       This functions tests whether the multithreading elements of the priority queue are working
+       An item will only be removed after one has been added
+       Put a system.out.println at the end of the remove in CustomPriorityQueue and it should display 3
+    */
+    public static void runFifthTest() {
+        queue = new CustomPriorityQueue(1);
+
+        // create our removal thread object and start running it
+        RemoveThread r = new RemoveThread(queue);
+        r.increaseRemovals(2); // let's remove one item
+        r.start();
+
+        // create our adding thread object and start running it
+        Item a = new Item(3);
+        AddThread add = new AddThread(queue);
+        add.waitToAdd(a);
+        add.start();
     }
 
     /*
