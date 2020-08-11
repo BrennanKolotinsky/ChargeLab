@@ -74,12 +74,15 @@ public class Test {
         queue.add(b);
         queue.add(c);
 
-//        System.out.println(queue.getItemCnt());
-
         // second item removed should be 1, because there is only capacity for it to be added after the first is removed!
 //        System.out.println("Test Four " + convertTrue( queue.remove().getPriority() == 3 && queue.remove().getPriority() == 1));
     }
 
+    /*
+       This functions translates success and failure
+       Input: Boolean
+       Output String success/fail
+   */
     public static String convertTrue(Boolean stat) {
         return stat ? "Successful" : "Failed";
     }
