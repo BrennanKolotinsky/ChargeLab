@@ -1,0 +1,9 @@
+Problem A1: Identify a scenario where lower priority items may never exit the queue. Provide a
+solution.
+
+If we remove an element for the second time with a priority but we never add in an item with a priority one greater:
+then we can’t remove the item with one greater priority which will prevent us from removing any more elements!
+
+For example, if we keep adding and removing elements from priority 1 to 10.
+Eventually, we will remove the 10 for a second time, but there won’t be an item with priority 11 to remove.
+Thus, we will stop removing items. And any element including a 1, won't be able to be removed!

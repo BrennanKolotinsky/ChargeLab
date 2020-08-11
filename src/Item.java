@@ -7,7 +7,7 @@ public class Item<T> {
         this.priority = p;
     }
 
-    public void setPriority(int p) {
+    public void setPriority2(int p) {
         this.priority = p;
     }
 
@@ -15,7 +15,8 @@ public class Item<T> {
         this.val = v;
     }
 
-    public int getPriority() {
+    // named getPriority2 because thread implements a method called getPriority!
+    public int getPriority2() {
         return this.priority;
     }
 

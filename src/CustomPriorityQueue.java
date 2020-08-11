@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class CustomPriorityQueue {
+public class CustomPriorityQueue extends Thread {
 
     private int capacity;
     private int itemCnt; // this is the number of items we have stored currently
@@ -9,6 +9,12 @@ public class CustomPriorityQueue {
     private PriorityQueue<Integer> pq; // this is a priority queue we will store the items in
     private HashSet<Integer> st; // this contains numbers that have been added an odd amount of times!
     private HashMap<Integer, LinkedList<Item>> map; // this will track all of the items under each priority
+
+    // multithreading assistant properties
+    private Queue<Item> itemsToAdd; // these are items waiting to be added
+    private int itemsToRemove; // these are the number of items waiting to be removed
+    private Boolean currentlyRemoving; // this variable tracks if we already have a multithreading process removing items
+    private Boolean currentlyAdding;
 
     public CustomPriorityQueue(int cap) {
         if (cap <= 0)
@@ -19,61 +25,118 @@ public class CustomPriorityQueue {
         this.pq  = new PriorityQueue<>((a, b) -> a - b); // sort by priority using lambda expressions -- lowest valued items first
         this.map = new HashMap<>();
         this.st = new HashSet<>();
+        this.itemsToAdd = new LinkedList<>();
+        this.currentlyAdding = false;
+        this.currentlyRemoving = false;
+    }
+
+    /*
+        This will decide whether we need to create a new thread
+        Input: Null
+        Output: Null
+     */
+    public void run() {
+        if (itemsToAdd.size() > 0 && !currentlyAdding) {
+            currentlyAdding = true;
+            this.add();
+        }
+
+        if (itemsToRemove > 0 && !currentlyRemoving) {
+            currentlyRemoving = true;
+            this.remove();
+        }
+    }
+
+    /*
+        This function will set us up to add an additional element into our priority queue
+        Input: Item
+        Output: Null
+     */
+
+    public void waitToAdd(Item i) {
+        this.itemsToAdd.offer(i);
+    }
+
+    /*
+        This function will set us up to remove x number of additional elements
+        Input: Integer number to increase the removal
+        Output: Null
+     */
+    public void increaseRemovals(int i) {
+        this.itemsToRemove += i;
     }
 
     /*
         This functions add our items to the priority queue
-        Input: Object Item
-        Output: Boolean True on success, false if it fails for some reason
+        Input: Null
+        Output: Null
      */
-    public boolean add(Item i) {
-        // this allows the queue item to be added once there is space (multi-threading)
-        while (this.capacity == this.itemCnt) {
+    public void add() {
+        try {
+            // this allows the queue item to be added once there is space (multi-threading)
+            while (this.capacity == this.itemCnt) {
+                Thread.sleep(1000);
+            }
+
+            Item i = itemsToAdd.poll();
+            this.map.putIfAbsent(i.getPriority2(), new LinkedList<>()); // create a new linkedlist under this number to add nums to if it doesn't exist
+            this.map.get(i.getPriority2()).offer(i); // add the item
+            pq.offer(i.getPriority2());
+            ++this.itemCnt;
+
+            // let's try to add the next item!
+            if (itemsToAdd.size() > 0)
+                this.add();
+
+            currentlyAdding = false; // finished adding all items
+        } catch (InterruptedException e) {
+            System.out.println("sleep interrupted");
         }
-
-        this.map.putIfAbsent(i.getPriority(), new LinkedList<>()); // create a new linkedlist under this number to add nums to if it doesn't exist
-        this.map.get(i.getPriority()).offer(i); // add the item
-        pq.offer(i.getPriority());
-        ++this.itemCnt;
-
-        return true;
     }
 
     /*
     This functions removes our items from the priority queue, with the highest priority queue
     Input: Null
-    Output: Object removed
+    Output: Null
     */
-    public Item remove() {
-        // only remove an item when there is one to remove
-        while (this.getItemCnt() == 0) {
-        }
-
-        Item rem;
-
-        // if we have removed two of the same priority let's wait until the next priority is available to remove it
-        if (this.requiredPriority) {
-            // wait until this key exists to remove it
-            while (!this.map.containsKey(prev + 1) || this.map.get(prev + 1).size() == 0) {
+    public void remove() {
+        try {
+            // only remove an item when there is one to remove
+            while (this.getItemCnt() == 0) {
+                Thread.sleep(1000);
             }
 
-            rem = this.map.get(prev + 1).poll(); // remove the item that was just added
-            if (map.get(prev + 1).size() == 0)
-                this.map.remove(prev + 1);
-        } else {
-            // clean up smaller priority mappings that don't have items attached any longer
-            while (!this.map.containsKey(this.pq.peek()) || this.map.get(this.pq.peek()).size() == 0)
-                pq.poll();
+            Item rem;
 
-            int curr = pq.poll();
-            rem = this.map.get(curr).poll(); // remove the item that was just added
-            if (map.get(curr).size() == 0)
-                this.map.remove(curr);
+            // if we have removed two of the same priority let's wait until the next priority is available to remove it
+            if (this.requiredPriority) {
+                // wait until this key exists to remove it
+                while (!this.map.containsKey(prev + 1) || this.map.get(prev + 1).size() == 0) {
+                }
+
+                rem = this.map.get(prev + 1).poll(); // remove the item that was just added
+                if (map.get(prev + 1).size() == 0)
+                    this.map.remove(prev + 1);
+            } else {
+                // clean up smaller priority mappings that don't have items attached any longer
+                while (!this.map.containsKey(this.pq.peek()) || this.map.get(this.pq.peek()).size() == 0)
+                    pq.poll();
+
+                int curr = pq.poll();
+                rem = this.map.get(curr).poll(); // remove the item that was just added
+                if (map.get(curr).size() == 0)
+                    this.map.remove(curr);
+            }
+
+            updateSet(rem.getPriority2());
+            --this.itemCnt; // total count of items is one less now
+
+            // let's try to remove the next item we have been waiting to remove!
+            if (--itemsToRemove > 0)
+                this.remove();
+        } catch (InterruptedException e) {
+            System.out.println("sleep interrupted");
         }
-
-        updateSet(rem.getPriority());
-        --this.itemCnt; // total count of items is one less now
-        return rem;
     }
 
     /*
