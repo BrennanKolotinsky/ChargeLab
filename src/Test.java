@@ -16,11 +16,16 @@ public class Test {
     public static void runFirstTest() {
         queue = new CustomPriorityQueue(3);
 
-        Item a = new Item(1);
-        queue.waitToAdd(a);
-        queue.increaseRemovals(1); // let's remove one item
-        queue.start();
-//        System.out.println("Test one " + convertTrue(rem.getPriority2() == 1));
+        // create our adding thread object and start running it
+        Item a = new Item(3);
+        AddThread add = new AddThread(queue);
+        add.waitToAdd(a);
+        add.start();
+
+        // create our removal thread object and start running it
+        RemoveThread r = new RemoveThread(queue);
+        r.increaseRemovals(1); // let's remove one item
+        r.start();
     }
 
     /*
