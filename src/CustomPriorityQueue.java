@@ -5,7 +5,7 @@ public class CustomPriorityQueue {
     private int capacity;
     private int itemCnt; // this is the number of items we have stored currently
     private int prev; // this is the previous val
-    private boolean requiredPriority; // this is a boolean to track whether the next value removed needs to be the prev + 1
+    public boolean requiredPriority; // this is a boolean to track whether the next value removed needs to be the prev + 1
     private PriorityQueue<Integer> pq; // this is a priority queue we will store the items in
     private HashSet<Integer> st; // this contains numbers that have been added an odd amount of times!
     private HashMap<Integer, LinkedList<Item>> map; // this will track all of the items under each priority
@@ -58,7 +58,7 @@ public class CustomPriorityQueue {
             }
 
             rem = this.map.get(prev + 1).poll(); // remove the item that was just added
-            if (map.get(prev + 1).size() == 1)
+            if (map.get(prev + 1).size() == 0)
                 this.map.remove(prev + 1);
         } else {
             // clean up smaller priority mappings that don't have items attached any longer
@@ -67,7 +67,7 @@ public class CustomPriorityQueue {
 
             int curr = pq.poll();
             rem = this.map.get(curr).poll(); // remove the item that was just added
-            if (map.get(curr).size() == 1)
+            if (map.get(curr).size() == 0)
                 this.map.remove(curr);
         }
 
