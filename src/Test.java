@@ -7,8 +7,9 @@ public class Test {
 //        runFirstTest();
 //        runSecondTest();
 //        runThirdTest();
-        runFourthTest();
+//        runFourthTest();
 //        runFifthTest();
+        runSixthTest();
     }
 
     /*
@@ -118,6 +119,40 @@ public class Test {
         AddThread add = new AddThread(queue);
         add.waitToAdd(a);
         add.start();
+    }
+
+    /*
+       This functions tests whether a larger amount of data works as intended
+       An item will only be removed after one has been added
+       Put a system.out.println at the end of the remove in CustomPriorityQueue and it should display 1, 2, 2, delayed until another 3 is added then 3, two 3s in a row so 4, then back to the earlier 2
+    */
+    public static void runSixthTest() {
+        queue = new CustomPriorityQueue(4);
+
+        // create our adding thread object and start running it
+        Item a = new Item(3);
+        Item b = new Item(1);
+        Item c = new Item(2);
+        Item d = new Item(2);
+        Item e = new Item(2);
+        Item f = new Item(4);
+        Item g = new Item(3);
+
+        AddThread add = new AddThread(queue);
+        add.waitToAdd(a);
+        add.waitToAdd(b);
+        add.waitToAdd(c);
+        add.start();
+
+        RemoveThread r = new RemoveThread(queue);
+        r.increaseRemovals(8);
+        r.start();
+
+        add.waitToAdd(d);
+        add.waitToAdd(e);
+        add.waitToAdd(f);
+
+        add.waitToAdd(g);
     }
 
     /*
